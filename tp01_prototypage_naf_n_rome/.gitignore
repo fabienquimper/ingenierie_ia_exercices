@@ -1,0 +1,101 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+ENV/
+.env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+MANIFEST
+
+# ============================================================
+# Outils Python
+# ============================================================
+# pytest
+.pytest_cache/
+.cache/
+
+# Coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# MyPy
+.mypy_cache/
+*.pyi
+
+# Ruff
+.ruff_cache/
+
+# uv
+.uv/
+uv.lock
+
+# ============================================================
+# IDE & Éditeurs
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# Docker
+# ============================================================
+.docker/
+
+# ============================================================
+# Variables d'environnement (JAMAIS committer ces fichiers !)
+# ============================================================
+.env
+.env.*
+*.env
+!.env.example
+
+# ============================================================
+# Données générées (trop lourdes pour Git)
+# ============================================================
+data/*.csv
+# Exception : garder le fichier sample
+!data/sample_naf_rome.csv
+
+# Modèles ML
+*.bin
+*.pt
+*.onnx
+models/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# ============================================================
+# Logs
+# ============================================================
+*.log
+logs/
+
+# ============================================================
+# OS
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini

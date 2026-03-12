@@ -1,0 +1,57 @@
+# ============================================================
+# docker-compose.yml -- NAF-ROME API
+# TP 1.2 -- Docker & CI/CD
+# ============================================================
+services:
+  # ---- Application FastAPI ----
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: naf_rome_api
+    image: naf-rome-api:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_DEBUG=false
+      - APP_DATA_PATH=data/sample_naf_rome.csv
+    volumes:
+      # Monte le dossier data en lecture seule
+      # Remplacez par votre chemin complet vers les données générées
+      - ./data:/app/data:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - naf_rome_net
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---- Redis (cache -- pour les TPs avancés) ----
+  redis:
+    image: redis:7-alpine
+    container_name: naf_rome_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - naf_rome_net
+    volumes:
+      - redis_data:/data
+
+networks:
+  naf_rome_net:
+    driver: bridge
+
+volumes:
+  redis_data:

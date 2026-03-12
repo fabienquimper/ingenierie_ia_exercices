@@ -1,0 +1,41 @@
+code_naf,code_rome,name,desc,type
+01.11Z,A1101,Culture de céréales,"Culture de blé, maïs, orge et autres céréales. Inclut la production de semences certifiées.",naf
+10.20Z,H2101,Transformation de poisson,"Transformation et conservation de poisson, crustacés et mollusques en conserves.",naf
+41.10A,F1103,Promotion immobilière de logements,"Acquisition de terrains, construction et vente de logements résidentiels.",naf
+47.11B,D1506,Commerce d'alimentation générale,"Vente au détail en épiceries et supermarchés de moins de 400m².",naf
+55.10Z,G1703,Hôtels et hébergement similaire,"Fourniture d'hébergement de courte durée dans des hôtels avec service de restauration.",naf
+56.10A,G1701,Restauration traditionnelle,"Restaurants avec service à table, cuisine traditionnelle française.",naf
+62.01Z,M1805,Programmation informatique,"Écriture, modification et test de logiciels informatiques sur mesure.",naf
+62.02A,M1802,Conseil en systèmes informatiques,"Conseil aux entreprises sur les systèmes d'information, architecture technique.",naf
+62.03Z,M1801,Gestion d'installations informatiques,"Exploitation et maintenance de systèmes informatiques pour le compte de tiers.",naf
+72.19Z,K2402,Recherche-développement en sciences,"R&D en sciences physiques, chimie, biologie et autres sciences naturelles.",naf
+85.20Z,K2101,Enseignement primaire,"Éducation au niveau primaire, de la maternelle au CM2.",naf
+85.31Z,K2104,Enseignement secondaire général,"Formation dans les collèges et lycées d'enseignement général.",naf
+86.10Z,J1101,Activités hospitalières,"Soins médicaux et chirurgicaux en milieu hospitalier, urgences comprises.",naf
+86.21Z,J1110,Médecine généraliste,"Consultations de médecine générale, suivi des patients en cabinet.",naf
+47.41Z,D1502,Commerce de détail en informatique,"Vente au détail d'ordinateurs, logiciels et matériel périphérique.",naf
+90.01Z,L1203,Arts du spectacle vivant,"Production de spectacles vivants : théâtre, concerts, danse, cirque.",naf
+71.11Z,F1106,Activités d'architecture,"Conception architecturale de bâtiments résidentiels et commerciaux.",naf
+69.10Z,K1901,Activités juridiques,"Conseil juridique, rédaction d'actes, représentation devant les tribunaux.",naf
+66.19B,C1201,Autres auxiliaires financiers,"Intermédiation financière, gestion de portefeuilles, conseils en investissements.",naf
+49.10Z,N4101,Transport ferroviaire,"Transport de voyageurs par chemin de fer, lignes régionales et nationales.",naf
+,A1101,Conduite de culture en céréaliculture,"Pilotage des opérations culturales pour la production de céréales et graines oléagineuses.",rome
+,H2101,Conduite d'équipement de production alimentaire,"Surveillance et conduite des lignes de transformation agroalimentaire.",rome
+,F1103,Management de projet immobilier,"Pilotage de projets de construction, promotion et gestion de patrimoine immobilier.",rome
+,D1506,Vente en alimentation,"Vente et conseil client dans les commerces alimentaires spécialisés.",rome
+,G1703,Réception en hôtellerie,"Accueil, information et gestion administrative des clients en établissement hôtelier.",rome
+,G1701,Personnel de cuisine,"Préparation, cuisson et dressage des plats dans un établissement de restauration.",rome
+,M1805,Développement de logiciels,"Conception et développement d'applications web, mobile et desktop.",rome
+,M1802,Expertise systèmes d'information,"Analyse et conseil sur l'architecture et l'optimisation des SI d'entreprise.",rome
+,M1801,Administration de systèmes d'information,"Installation, configuration et maintenance des infrastructures informatiques.",rome
+,K2402,Recherche en sciences,"Conduite de travaux de recherche fondamentale et appliquée en sciences.",rome
+,K2101,Enseignement du premier degré,"Animation pédagogique et instruction des élèves en école primaire.",rome
+,K2104,Éducation et surveillance scolaire,"Encadrement éducatif et surveillance des élèves en milieu scolaire.",rome
+,J1101,Médecine hospitalière,"Diagnostic et traitement des patients hospitalisés, coordination des soins.",rome
+,J1110,Médecine de premier recours,"Consultation, diagnostic et suivi de patients en médecine générale.",rome
+,D1502,Commerce en informatique,"Vente conseil de produits informatiques et services associés.",rome
+,L1203,Management artistique,"Organisation et gestion de productions artistiques et spectacles vivants.",rome
+,F1106,Architecture du bâtiment et de l'urbanisme,"Conception de projets architecturaux, permis de construire et suivi chantier.",rome
+,K1901,Défense et conseil juridique,"Analyse de dossiers juridiques, rédaction d'actes et plaidoirie.",rome
+,C1201,Gestion d'actifs financiers,"Analyse, sélection et gestion de portefeuilles d'actifs financiers.",rome
+,N4101,Conduite de train,"Conduite de trains de voyageurs et de fret sur le réseau ferré national.",rome
