@@ -4,8 +4,16 @@ set -e
 echo "=== NAF-ROME Frontend — Jour 1 (CSV) ==="
 echo ""
 
-# Installe les dépendances si node_modules absent
-if [ ! -d "node_modules" ]; then
+# Sur WSL + filesystem Windows (/mnt/c/), l'interop peut faire appel au node
+# Windows au lieu du node WSL. On force le node Linux explicitement.
+WSL_NODE=$(which -a node 2>/dev/null | grep -v "/mnt/" | head -1)
+NODE="${WSL_NODE:-node}"
+
+echo "Node : $($NODE --version) — $NODE"
+echo ""
+
+# Installe les dépendances si vite est absent
+if [ ! -f "node_modules/.bin/vite" ]; then
   echo "Installation des dépendances npm..."
   npm install
   echo ""
@@ -17,4 +25,5 @@ echo ""
 echo "Appuyez sur Ctrl+C pour arrêter."
 echo ""
 
-npm run dev
+# Appel direct au node WSL + vite.js (contourne l'interop Windows)
+exec "$NODE" ./node_modules/vite/bin/vite.js
