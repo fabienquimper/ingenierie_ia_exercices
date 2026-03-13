@@ -1,0 +1,38 @@
+# ============================================================
+# IDE & Éditeurs  (racine du repo)
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# VS Code extensions generated files
+PythonImportHelper-v2-Completion.json
+*.code-workspace
+
+# ============================================================
+# OS
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# Node.js  (frontend Vue/React dans tous les sous-dossiers)
+# ============================================================
+node_modules/
+dist/
+.cache/
+
+# ============================================================
+# Python  (commun à tous les sous-projets)
+# ============================================================
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

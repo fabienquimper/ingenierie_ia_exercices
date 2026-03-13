@@ -9,6 +9,47 @@ avant l'implémentation technique, en utilisant des outils de prototypage UI.
 
 ---
 
+## Wireframe de référence (Excalidraw)
+
+Un wireframe complet de l'interface est fourni :  `wireframe_naf_rome.excalidraw`
+
+Il représente les deux vues (Desktop 1400px + Mobile 390px) avec toutes les
+fonctionnalités : recherche, filtres, tableau, export CSV, pagination.
+
+### Ouvrir le wireframe
+
+**Option A — En ligne (aucune installation)**
+1. Allez sur **https://excalidraw.com**
+2. `File → Open` → sélectionnez `wireframe_naf_rome.excalidraw`
+
+**Option B — VS Code**
+Installez l'extension [Excalidraw](https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor)
+puis ouvrez directement le fichier `.excalidraw`.
+
+### Régénérer ou modifier le wireframe
+
+Le fichier est généré par un script Python — vous pouvez le modifier librement :
+
+```bash
+# Régénérer après modification du script
+python3 generate_wireframe.py
+# → recrée wireframe_naf_rome.excalidraw
+```
+
+Le script `generate_wireframe.py` contient des fonctions simples (`rect`, `txt`, `arrow`)
+que les étudiants peuvent modifier pour itérer sur le design.
+
+### Interface prototype (Vue.js)
+
+Le prototype fonctionnel (HTML/CSS/JS) est dans `frontend/` :
+
+```bash
+cd frontend && ./run.sh
+# → http://localhost:5173
+```
+
+---
+
 ## Contexte
 
 Vous devez concevoir l'interface d'une application web permettant aux conseillers
@@ -25,7 +66,7 @@ Pôle Emploi et aux RH d'entreprises de :
 ### Option A : Penpot (Open Source, recommandé)
 - **URL :** https://penpot.app
 - **Avantage :** Gratuit, open source, collaborative
-- **Tutoriel :** https://help.penpot.app/user-guide/
+- **Tutoriel :** https://help.penpot.app/user-guide/, docker-compose: https://help.penpot.app/technical-guide/getting-started/docker/ (docker compose -p penpot -f docker-compose.yaml up -d, http://localhost:9001, docker compose -p penpot -f docker-compose.yaml down)
 - **Démarrer :** Créez un compte, puis "New project"
 
 ### Option B : Figma (Freemium)
@@ -34,9 +75,12 @@ Pôle Emploi et aux RH d'entreprises de :
 - **Plan gratuit :** 3 fichiers, collaborateurs illimités en lecture
 - **Tutoriel débutant :** https://help.figma.com/hc/en-us/articles/360038511533
 
-### Option C : Draw.io / Excalidraw (Simple, pour les wireframes)
-- **Draw.io :** https://draw.io (offline possible)
-- **Excalidraw :** https://excalidraw.com (style main levée)
+### Option C : Excalidraw (fourni — recommandé pour démarrer)
+- **URL :** https://excalidraw.com (style main levée, aucun compte requis)
+- **Fichier fourni :** `wireframe_naf_rome.excalidraw` — wireframe de référence Desktop + Mobile
+- **Ouvrir :** `File → Open` sur excalidraw.com, ou extension VS Code
+- **Modifier :** relancez `python3 generate_wireframe.py` après édition du script
+- **Draw.io :** https://draw.io (alternative offline possible)
 
 ---
 
@@ -144,10 +188,10 @@ Dans Figma ou Penpot, rendez votre prototype navigable :
 
 | Heure | Activité |
 |-------|----------|
-| 09h00 - 09h30 | Introduction UX/UI, présentation des outils |
+| 09h00 - 09h30 | Introduction UX/UI — ouverture du wireframe de référence (`wireframe_naf_rome.excalidraw`) |
 | 09h30 - 10h00 | Création des personas |
 | 10h00 - 10h30 | Rédaction des user stories |
-| 10h30 - 12h30 | Wireframes (4 écrans) |
+| 10h30 - 12h30 | Wireframes (4 écrans) — s'inspirer du wireframe fourni et itérer |
 | 12h30 - 13h30 | Pause déjeuner |
 | 13h30 - 15h30 | Prototype haute fidélité (couleurs, typo) |
 | 15h30 - 16h30 | Liens interactifs dans le prototype |
@@ -171,5 +215,5 @@ un test utilisateur rapide (5 minutes par personne) :
 
 Le design que vous créez aujourd'hui servira de référence pour :
 - **TP 1.1 (jour02)** : l'API que vous allez construire doit exposer les données
-  nécessaires à votre interface
-- **TP 1.4 (jour05)** : vous pourrez implémenter une version fonctionnelle de votre UI
+  nécessaires à votre interface — le prototype Vue.js est déjà disponible dans `frontend/`
+- **Jour 5 (autonomie)** : vous pourrez implémenter et améliorer le prototype fonctionnel
