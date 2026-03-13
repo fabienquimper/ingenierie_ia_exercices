@@ -1,0 +1,20 @@
+# NAFnROME est un dépôt git indépendant — ne pas committer son contenu ici.
+# Clonez-le vous-même : git clone https://github.com/fabienquimper/NAFnROME
+NAFnROME/
+
+# CSV générés (trop lourds, régénérables via les notebooks)
+*.csv
+
+# Environnements virtuels
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Modèles ML téléchargés
+models/
+*.bin
+*.pt
