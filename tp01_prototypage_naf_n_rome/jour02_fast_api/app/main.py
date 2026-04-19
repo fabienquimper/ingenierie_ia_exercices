@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 async def lifespan(app: FastAPI):
     # Startup: charger les données
     logger.info("startup", message="Chargement des données NAF/ROME...")
-    init_matcher(settings.data_path)
+    init_matcher(settings.data_naf_path, settings.data_rome_path, settings.data_matching_path)
     logger.info("startup_complete", message="API prête !")
     yield
     # Shutdown
