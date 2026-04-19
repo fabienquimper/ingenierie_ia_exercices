@@ -12,15 +12,11 @@
             <p class="text-sm text-slate-500 mt-0.5">
               Correspondances entre codes d'activité (NAF) et codes métier (ROME)
               <span class="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-                Source : API FastAPI — Jour 2
+                Source : CSV local — Jour 2
               </span>
             </p>
           </div>
           <div class="flex items-center gap-3">
-            <span :class="['flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium', apiOnline ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700']">
-              <span :class="['w-2 h-2 rounded-full', apiOnline ? 'bg-emerald-500' : 'bg-red-500']" />
-              API {{ apiOnline ? 'connectée' : 'hors ligne' }}
-            </span>
             <div v-if="loading" class="flex items-center gap-2 text-sm text-slate-500">
               <svg class="animate-spin w-4 h-4 text-brand-600" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -43,7 +39,7 @@
           <p class="font-semibold">Erreur de connexion à l'API</p>
           <p class="mt-0.5 text-red-600">{{ error }}</p>
           <p class="mt-1 text-xs text-red-500">
-            Lancez l'API : <code class="bg-red-100 px-1 rounded">./run.sh</code> puis rechargez cette page.
+            Vérifiez que les fichiers CSV sont bien dans <code class="bg-red-100 px-1 rounded">public/</code>.
           </p>
         </div>
       </div>
@@ -80,7 +76,7 @@
 
     <!-- Footer -->
     <footer class="text-center py-6 text-xs text-slate-400">
-      TP 1.1 · Master IA · CreativeTech · API : {{ apiBase }}
+      TP 1.1 · Master IA · CreativeTech · Sources : INSEE &amp; data.gouv.fr
     </footer>
   </div>
 </template>
@@ -90,20 +86,17 @@ import { ref, computed, watch, onMounted } from 'vue'
 import SearchBar from './components/SearchBar.vue'
 import ResultsTable from './components/ResultsTable.vue'
 import StatsBar from './components/StatsBar.vue'
-import { loadData, search, exportToCsv } from './services/apiService'
+import { loadData, search, exportToCsv } from './services/csvService'
 import type { NafRomeRecord, SortField, SortDir } from './types'
-
-const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 // --- State ---
 const allData    = ref<NafRomeRecord[]>([])
 const loading    = ref(true)
 const error      = ref('')
-const apiOnline  = ref(false)
 
 const keyword    = ref('')
 const code       = ref('')
-const typeFilter = ref<'all' | 'naf' | 'rome'>('all')
+const typeFilter = ref<'all' | 'naf' | 'rome' | 'matching'>('all')
 const sortField  = ref<SortField>('type')
 const sortDir    = ref<SortDir>('asc')
 const page       = ref(1)
@@ -113,10 +106,8 @@ const perPage    = ref(25)
 onMounted(async () => {
   try {
     allData.value = await loadData()
-    apiOnline.value = true
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
-    apiOnline.value = false
   } finally {
     loading.value = false
   }

@@ -34,8 +34,8 @@ const stats = computed(() => [
     color: 'text-violet-600',
   },
   {
-    label: 'Secteurs uniques',
-    value: new Set(props.data.map((r) => r.code_naf.slice(0, 2)).filter(Boolean)).size,
+    label: 'Correspondances NAF↔ROME',
+    value: props.data.filter((r) => r.type === 'matching').length,
     color: 'text-emerald-600',
   },
 ])

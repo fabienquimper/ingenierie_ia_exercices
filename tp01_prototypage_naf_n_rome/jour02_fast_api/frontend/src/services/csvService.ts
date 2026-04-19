@@ -1,31 +1,37 @@
-/**
- * Service Jour 1 — Chargement et recherche directement depuis le CSV.
- * Aucun backend requis : tout tourne dans le navigateur.
- */
 import Papa from 'papaparse'
 import type { NafRomeRecord } from '../types'
 
 let cache: NafRomeRecord[] | null = null
 
-export async function loadData(csvUrl = '/data/sample_naf_rome.csv'): Promise<NafRomeRecord[]> {
-  if (cache) return cache
-
-  const response = await fetch(csvUrl)
-  if (!response.ok) throw new Error(`Impossible de charger ${csvUrl} (${response.status})`)
+async function loadCsv(url: string, type: NafRomeRecord['type']): Promise<NafRomeRecord[]> {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`Impossible de charger ${url} (${response.status})`)
   const text = await response.text()
-
-  const result = Papa.parse<NafRomeRecord>(text, {
+  const result = Papa.parse<Record<string, string>>(text, {
     header: true,
     skipEmptyLines: true,
     transformHeader: (h) => h.trim(),
     transform: (v) => v.trim(),
   })
-
-  cache = result.data.map((row) => ({
-    ...row,
-    type: (row.type === 'rome' ? 'rome' : 'naf') as 'naf' | 'rome',
+  return result.data.map((row) => ({
+    code_naf: row.code_naf ?? '',
+    code_rome: row.code_rome ?? '',
+    name: row.name ?? '',
+    desc: row.desc ?? '',
+    type,
   }))
+}
 
+export async function loadData(): Promise<NafRomeRecord[]> {
+  if (cache) return cache
+
+  const [nafData, romeData, matchingData] = await Promise.all([
+    loadCsv('/naf_codes_001_desc.csv', 'naf'),
+    loadCsv('/rome.csv', 'rome'),
+    loadCsv('/data/rome_with_naf__thenlper_gte-large.csv', 'matching'),
+  ])
+
+  cache = [...nafData, ...romeData, ...matchingData]
   return cache
 }
 
@@ -33,7 +39,7 @@ export function search(
   data: NafRomeRecord[],
   keyword: string,
   code: string,
-  typeFilter: 'all' | 'naf' | 'rome',
+  typeFilter: 'all' | 'naf' | 'rome' | 'matching',
 ): NafRomeRecord[] {
   const kw = keyword.toLowerCase().trim()
   const cd = code.toLowerCase().replace('.', '').trim()
