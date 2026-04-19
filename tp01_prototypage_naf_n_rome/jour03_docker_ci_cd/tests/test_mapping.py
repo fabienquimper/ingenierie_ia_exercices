@@ -1,12 +1,10 @@
-import pytest
-
-
 def test_list_rome(client):
     response = client.get("/api/v1/rome")
     assert response.status_code == 200
     data = response.json()
     assert "data" in data
-    assert len(data["data"]) > 0
+    assert data["total"] == 3
+    assert len(data["data"]) == 3
 
 
 def test_list_naf(client):
@@ -14,7 +12,25 @@ def test_list_naf(client):
     assert response.status_code == 200
     data = response.json()
     assert "data" in data
-    assert len(data["data"]) > 0
+    assert data["total"] == 3
+    assert len(data["data"]) == 3
+
+
+def test_list_matching(client):
+    response = client.get("/api/v1/matching")
+    assert response.status_code == 200
+    data = response.json()
+    assert "data" in data
+    assert data["total"] == 3
+    assert all(r["type"] == "matching" for r in data["data"])
+
+
+def test_list_all(client):
+    response = client.get("/api/v1/all")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 9  # 3 naf + 3 rome + 3 matching
+    assert len(data["data"]) == 9
 
 
 def test_get_rome_by_code(client):
@@ -46,7 +62,7 @@ def test_search_keyword(client):
 
 def test_search_too_short(client):
     response = client.post("/api/v1/search", json={"query": "a", "limit": 5})
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == 422
 
 
 def test_mapping_rome_to_naf(client):
@@ -62,10 +78,12 @@ def test_mapping_naf_to_rome(client):
     assert response.status_code == 200
     data = response.json()
     assert "rome_suggestions" in data
+    assert len(data["rome_suggestions"]) > 0
 
 
 def test_pagination(client):
     response = client.get("/api/v1/rome?limit=2&offset=0")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["data"]) <= 2
+    assert len(data["data"]) == 2
+    assert data["total"] == 3  # total reste 3 même avec limit=2

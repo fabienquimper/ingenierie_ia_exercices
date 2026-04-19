@@ -9,8 +9,7 @@ dist/
 build/
 .eggs/
 
-# Tests & CI
-tests/
+# Tests & CI (tests/ est copié explicitement dans le stage test du Dockerfile)
 .pytest_cache/
 .coverage
 htmlcov/

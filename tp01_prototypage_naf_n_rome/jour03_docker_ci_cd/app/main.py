@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 async def lifespan(app: FastAPI):
     # Startup: charger les données
     logger.info("startup", message="Chargement des données NAF/ROME...")
-    init_matcher(settings.data_path)
+    init_matcher(settings.data_naf_path, settings.data_rome_path, settings.data_matching_path)
     logger.info("startup_complete", message="API prête !")
     yield
     # Shutdown
@@ -31,15 +31,11 @@ Cette API permet de :
 - **Lister** les codes NAF et ROME
 - **Rechercher** par mots-clés
 - **Obtenir les correspondances** entre codes NAF et ROME
-
-Basée sur les données de [data.gouv.fr](https://data.gouv.fr) et [INSEE](https://www.insee.fr).
-
-> Les correspondances sont indicatives et basées sur la similarité textuelle.
     """,
     lifespan=lifespan,
 )
 
-# CORS
+# CORS - permet les appels depuis n'importe quelle origine (utile pour le dev)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -48,13 +44,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routes
+# Enregistrement des routes
 app.include_router(health.router)
 app.include_router(mapping.router)
 
 
 @app.get("/", tags=["Root"])
 async def root() -> dict:
+    """Page d'accueil de l'API."""
     return {
         "message": f"Bienvenue sur l'{settings.app_name} v{settings.app_version}",
         "docs": "/docs",

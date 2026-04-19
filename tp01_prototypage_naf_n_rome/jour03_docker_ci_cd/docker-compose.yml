@@ -15,7 +15,9 @@ services:
       - "8000:8000"
     environment:
       - APP_DEBUG=false
-      - APP_DATA_PATH=data/sample_naf_rome.csv
+      - APP_DATA_NAF_PATH=data/naf_codes_001_desc.csv
+      - APP_DATA_ROME_PATH=data/rome.csv
+      - APP_DATA_MATCHING_PATH=data/rome_with_naf__thenlper_gte-large.csv
     volumes:
       # Monte le dossier data en lecture seule
       # Remplacez par votre chemin complet vers les données générées

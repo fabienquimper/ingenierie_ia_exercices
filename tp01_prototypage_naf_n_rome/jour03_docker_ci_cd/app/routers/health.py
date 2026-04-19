@@ -19,7 +19,7 @@ async def health_check() -> HealthResponse:
 
 @router.get("/metrics", tags=["Monitoring"])
 async def metrics() -> dict:
-    """Endpoint de métriques format simplifié (compatible Prometheus)."""
+    """Endpoint de métriques format simplifié."""
     matcher = get_matcher()
     return {
         "naf_rome_records_total": matcher.record_count,

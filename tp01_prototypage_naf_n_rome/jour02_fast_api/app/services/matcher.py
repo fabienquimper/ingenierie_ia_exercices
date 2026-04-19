@@ -32,7 +32,7 @@ class NafRomeMatcher:
                 logger.error("data_file_not_found", path=str(path))
 
         if frames:
-            self.df = pd.concat(frames, ignore_index=True)
+            self.df = pd.concat(frames, ignore_index=True).fillna("")
         else:
             self.df = pd.DataFrame(columns=["code_naf", "code_rome", "name", "desc", "type"])
 
