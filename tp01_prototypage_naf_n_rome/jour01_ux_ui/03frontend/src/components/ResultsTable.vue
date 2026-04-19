@@ -75,8 +75,8 @@
             class="hover:bg-slate-50/80 transition-colors group"
           >
             <td class="px-4 py-3">
-              <span :class="row.type === 'naf' ? 'badge-naf' : 'badge-rome'">
-                {{ row.type.toUpperCase() }}
+              <span :class="row.type === 'naf' ? 'badge-naf' : row.type === 'rome' ? 'badge-rome' : 'badge-matching'">
+                {{ row.type === 'matching' ? 'NAF↔ROME' : row.type.toUpperCase() }}
               </span>
             </td>
             <td class="px-4 py-3 font-mono text-xs text-blue-700 font-semibold whitespace-nowrap">

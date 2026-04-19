@@ -94,7 +94,7 @@ const error     = ref('')
 
 const keyword    = ref('')
 const code       = ref('')
-const typeFilter = ref<'all' | 'naf' | 'rome'>('all')
+const typeFilter = ref<'all' | 'naf' | 'rome' | 'matching'>('all')
 const sortField  = ref<SortField>('type')
 const sortDir    = ref<SortDir>('asc')
 const page       = ref(1)

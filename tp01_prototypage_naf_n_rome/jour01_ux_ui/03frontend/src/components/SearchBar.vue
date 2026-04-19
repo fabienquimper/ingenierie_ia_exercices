@@ -74,19 +74,20 @@
 defineProps<{
   keyword: string
   code: string
-  typeFilter: 'all' | 'naf' | 'rome'
+  typeFilter: 'all' | 'naf' | 'rome' | 'matching'
 }>()
 
 defineEmits<{
   'update:keyword': [v: string]
   'update:code': [v: string]
-  'update:typeFilter': [v: 'all' | 'naf' | 'rome']
+  'update:typeFilter': [v: 'all' | 'naf' | 'rome' | 'matching']
   'reset': []
 }>()
 
 const typeOptions = [
-  { value: 'all',  label: 'Tous',  activeClass: 'bg-slate-700 text-white' },
-  { value: 'naf',  label: 'NAF',   activeClass: 'bg-blue-600 text-white' },
-  { value: 'rome', label: 'ROME',  activeClass: 'bg-violet-600 text-white' },
+  { value: 'all',      label: 'Tous',             activeClass: 'bg-slate-700 text-white' },
+  { value: 'naf',      label: 'NAF',              activeClass: 'bg-blue-600 text-white' },
+  { value: 'rome',     label: 'ROME',             activeClass: 'bg-violet-600 text-white' },
+  { value: 'matching', label: 'Matching NAF↔ROME', activeClass: 'bg-emerald-600 text-white' },
 ] as const
 </script>

@@ -32,4 +32,7 @@
   .badge-rome {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-800;
   }
+  .badge-matching {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800;
+  }
 }
