@@ -1,219 +1,382 @@
-# TP 1.0 — UX/UI : Concevoir l'interface de l'application NAF-ROME
+# Jour 1 — UX/UI : Concevoir l'interface NAF-ROME
 
-## Description
-
-Avant de coder, on conçoit ! Ce TP vous apprend à penser l'expérience utilisateur
-avant l'implémentation technique, en utilisant des outils de prototypage UI.
-
-**Durée estimée :** 1 journée (7h)
+**Niveau :** Master IA · CreativeTech  
+**Durée :** 1 journée (7h)  
+**Objectif :** Avant de coder, on conçoit. Ce jour est entièrement consacré à la psychologie UX, aux personas, et au prototypage de l'interface.
 
 ---
 
-## Wireframe de référence (Excalidraw)
+## Le projet NAF ↔ ROME
 
-Un wireframe complet de l'interface est fourni :  `wireframe_naf_rome.excalidraw`
+L'application que vous allez construire sur 3 jours permet de faire correspondre des **codes NAF** (Nomenclature d'Activités Françaises, INSEE) et des **codes ROME** (Répertoire Opérationnel des Métiers et des Emplois, France Travail).
 
-Il représente les deux vues (Desktop 1400px + Mobile 390px) avec toutes les
-fonctionnalités : recherche, filtres, tableau, export CSV, pagination.
+Elle expose **deux services distincts**, pour **deux types d'utilisateurs très différents** :
 
-### Ouvrir le wireframe
+| | Service 1 — Matching structuré | Service 2 — Classification texte libre |
+|---|---|---|
+| **Persona** | Sophie, conseillère France Travail | Karim, chargé de veille économique (CCI) |
+| **Input** | Code ROME, code NAF, ou mots-clés | Texte libre (offre d'emploi, description d'activité) |
+| **Output** | Liste de codes correspondants filtrée | Codes NAF/ROME les plus probables + score de confiance |
+| **Endpoint (jour 2)** | `GET /match?code_rome=M1805` | `POST /classify {"text": "..."}` |
+| **UX clé** | Interface simple, max 5-7 résultats | Coller un texte → résultats immédiats avec scores |
 
-**Option A — En ligne (aucune installation)**
-1. Allez sur **https://excalidraw.com**
-2. `File → Open` → sélectionnez `wireframe_naf_rome.excalidraw`
+> **Aujourd'hui vous ne codez pas.** Vous analysez, concevez, et prototypez.
 
-**Option B — VS Code**
-Installez l'extension [Excalidraw](https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor)
-puis ouvrez directement le fichier `.excalidraw`.
+---
 
-### Régénérer ou modifier le wireframe
+## Les deux personas
 
-Le fichier est généré par un script Python — vous pouvez le modifier librement :
+### Sophie — 42 ans, Conseillère France Travail
+
+> *"Je passe des heures dans des tableaux Excel pour trouver quels métiers correspondent à l'activité d'une entreprise. C'est épuisant."*
+
+- **Poste :** Conseillère en insertion professionnelle, agence France Travail de Lyon
+- **Usage :** Accompagne des demandeurs d'emploi vers des entreprises qui recrutent. Doit croiser les codes NAF des entreprises avec les codes ROME des candidats.
+- **Niveau technique :** À l'aise avec les outils bureautiques, peu habituée aux applications web avancées
+- **Frustration principale :** Les référentiels NAF et ROME sont complexes, les tables de correspondance Excel ne sont pas intuitives
+- **Besoin UX :** Interface simple, résultats filtrés (Loi de Miller : 5-7 max), langage métier compréhensible sans connaître les codes
+- **Scénario type :** Cherche les métiers ROME compatibles avec une entreprise de code NAF `62.01Z` pour orienter un candidat développeur
+
+### Karim — 35 ans, Chargé de veille économique (CCI)
+
+> *"Je reçois des dizaines d'offres d'emploi et de descriptions d'entreprises. Je dois les classer manuellement en codes NAF/ROME. C'est du copier-coller sans fin."*
+
+- **Poste :** Chargé de veille et d'analyse économique, Chambre de Commerce et d'Industrie
+- **Usage :** Reçoit des textes bruts (offres d'emploi, fiches entreprises) et doit les classer en codes NAF/ROME pour ses rapports de veille
+- **Niveau technique :** Habitué aux tableurs et à l'analyse de données, pas de compétences en API ou en code
+- **Frustration principale :** Classement manuel long et sujet à erreurs, pas d'outil adapté à son workflow
+- **Besoin UX :** Coller un texte → obtenir immédiatement les codes probables avec un **score de confiance** et une **justification**
+- **Scénario type :** Colle une offre d'emploi → obtient `ROME M1805 (90%)` + `NAF 62.01Z (85%)` + explication en langage naturel
+
+> *Bonus — contexte étendu :* Karim a un collègue développeur qui aimerait exposer
+> ce même service sous forme d'API pour traiter des offres en masse automatiquement.
+> Karim est en quelque sorte le "testeur métier" de ce que le dev voudrait industrialiser —
+> un bon pont pour expliquer le passage jour 1 (UX) → jour 2 (API) → jour 3 (Docker).
+
+---
+
+## L'application de référence (Service 1 — Sophie)
+
+Le dossier `03frontend/` contient une **implémentation de référence fonctionnelle** du Service 1.
 
 ```bash
-# Régénérer après modification du script
-python3 generate_wireframe.py
-# → recrée wireframe_naf_rome.excalidraw
-```
-
-Le script `generate_wireframe.py` contient des fonctions simples (`rect`, `txt`, `arrow`)
-que les étudiants peuvent modifier pour itérer sur le design.
-
-### Interface prototype (Vue.js)
-
-Le prototype fonctionnel (HTML/CSS/JS) est dans `frontend/` :
-
-```bash
-cd frontend && ./run.sh
+cd 03frontend
+./run.sh
 # → http://localhost:5173
 ```
 
+> **Ce frontend est un exemple, pas le livrable.** Il illustre le Service 1 (Sophie).  
+> Votre travail aujourd'hui : **l'analyser, le critiquer, et concevoir ce qui manque** — notamment le Service 2 (Karim).
+
+Ce que ce frontend fait :
+- Charge 3 CSV (NAF, ROME, correspondances) directement dans le navigateur
+- Recherche par mots-clés ou code
+- Filtre par type (NAF / ROME / Matching)
+- Tableau de résultats paginé, triable, exportable CSV
+- Lignes expansibles pour voir la description complète
+- Accessible au clavier (RGAA niveau A)
+
+Ce qu'il ne fait **pas** (à concevoir aujourd'hui) :
+- Interface de classification texte libre (Service 2 / Karim)
+- Score de confiance visible
+- Mode vocal / Whisper (bonus)
+- Explication des résultats en langage naturel
+
 ---
 
-## Contexte
+## Psychologie cognitive appliquée à l'UX
 
-Vous devez concevoir l'interface d'une application web permettant aux conseillers
-Pôle Emploi et aux RH d'entreprises de :
+Avant de concevoir, comprenez ces lois. Elles guident chaque décision de design.
 
-1. **Rechercher** des correspondances entre codes NAF et ROME
-2. **Explorer** les métiers associés à une activité d'entreprise
-3. **Valider** ou rejeter des correspondances suggérées par l'IA
+| Loi | Principe | Application dans notre app |
+|---|---|---|
+| **Loi de Miller** | L'humain traite 7 ± 2 éléments en mémoire de travail | Max 5-7 résultats par page pour Sophie |
+| **Loi de Hick** | Plus il y a de choix, plus la décision est longue | Filtres réduits au minimum, pas de menus complexes |
+| **Loi de Fitts** | Le temps pour atteindre une cible dépend de sa taille et distance | Boutons d'action grands et proches du contenu |
+| **Gestalt — Proximité** | Des éléments proches semblent liés | Code NAF + libellé + score groupés visuellement |
+| **Gestalt — Similarité** | Des éléments similaires visuellement semblent appartenir au même groupe | Badges couleur cohérents : bleu NAF, violet ROME, vert Matching |
+| **Effet de primauté/récence** | On retient mieux le début et la fin d'une liste | Résultats les plus pertinents en premier, action d'export en dernier |
 
 ---
 
 ## Outils de prototypage
 
-### Option A : Penpot (Open Source, recommandé)
-- **URL :** https://penpot.app
-- **Avantage :** Gratuit, open source, collaborative
-- **Tutoriel :** https://help.penpot.app/user-guide/, docker-compose: https://help.penpot.app/technical-guide/getting-started/docker/ (docker compose -p penpot -f docker-compose.yaml up -d, http://localhost:9001, docker compose -p penpot -f docker-compose.yaml down)
-- **Démarrer :** Créez un compte, puis "New project"
+### Étape 1 — Wireframe basse fidélité (Excalidraw)
 
-### Option B : Figma (Freemium)
-- **URL :** https://www.figma.com
-- **Avantage :** Leader du marché, nombreuses ressources communautaires
-- **Plan gratuit :** 3 fichiers, collaborateurs illimités en lecture
-- **Tutoriel débutant :** https://help.figma.com/hc/en-us/articles/360038511533
+Un wireframe de référence est fourni : `01excalidraw/wireframe_naf_rome.excalidraw`
 
-### Option C : Excalidraw (fourni — recommandé pour démarrer)
-- **URL :** https://excalidraw.com (style main levée, aucun compte requis)
-- **Fichier fourni :** `wireframe_naf_rome.excalidraw` — wireframe de référence Desktop + Mobile
-- **Ouvrir :** `File → Open` sur excalidraw.com, ou extension VS Code
-- **Modifier :** relancez `python3 generate_wireframe.py` après édition du script
-- **Draw.io :** https://draw.io (alternative offline possible)
+- Ouvrir en ligne : [excalidraw.com](https://excalidraw.com) → `File → Open`
+- Extension VS Code : [Excalidraw Editor](https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor)
+
+Ce wireframe couvre l'interface Sophie (Service 1). Vous devrez créer le wireframe de l'interface Karim (Service 2).
+
+### Étape 2 — Prototype haute fidélité (Penpot)
+
+**Penpot** est recommandé (open source, gratuit, collaborative) :
+- En ligne : [penpot.app](https://penpot.app)
+- En local (Docker) : `docker compose -p penpot -f 02penpot/docker-compose.yaml up -d` → [localhost:9001](http://localhost:9001)
+
+**Figma** est aussi accepté : [figma.com](https://www.figma.com) (plan gratuit suffisant)
 
 ---
 
 ## Livrables attendus
 
-### 1. Personas (30 min)
-Créez 2 personas représentant vos utilisateurs cibles :
+### 1. Analyse de l'existant — Service 1 (45 min)
 
-**Persona 1 : Conseiller Pôle Emploi**
-- Nom, âge, poste
-- Objectifs : aider les demandeurs d'emploi à trouver des pistes de reconversion
-- Frustrations : perte de temps à chercher dans des référentiels complexes
-- Niveau technique : intermédiaire
+Lancez `03frontend` et analysez-le en tant que **Sophie** :
+- Quelles lois cognitives sont respectées ? Lesquelles sont violées ?
+- Identifiez 3 points forts et 3 améliorations prioritaires
+- Vérifiez 5 critères RGAA (voir checklist ci-dessous)
 
-**Persona 2 : Chargé de recrutement RH**
-- Nom, âge, entreprise type
-- Objectifs : trouver les bons profils ROME pour un poste NAF donné
-- Frustrations : manque de connaissance des codes ROME
-- Niveau technique : débutant à intermédiaire
+### 2. Personas documentés (30 min)
 
-### 2. User Stories (30 min)
-Rédigez au minimum 5 user stories au format :
+Complétez les fiches Sophie et Karim avec :
+- Une photo (Unsplash, libre de droits)
+- Leurs objectifs, frustrations, contexte d'usage
+- Leur parcours type (user journey en 5 étapes)
+
+### 3. User Stories (30 min)
+
+Rédigez **6 user stories minimum** (3 par persona) au format :
 > En tant que **[persona]**, je veux **[action]** afin de **[bénéfice]**.
 
 Exemples :
-- En tant que **conseiller**, je veux **saisir un code NAF** afin de **voir les métiers ROME associés**.
-- En tant que **RH**, je veux **rechercher par mot-clé** afin de **trouver le bon code NAF pour mon entreprise**.
+- En tant que **Sophie**, je veux **saisir un code NAF et voir les 5 métiers ROME les plus proches** afin de **gagner du temps dans l'orientation**.
+- En tant que **Karim**, je veux **coller une offre d'emploi et obtenir un code ROME avec un score** afin de **automatiser mon classement**.
 
-### 3. Wireframes (2h)
-Créez les maquettes basse fidélité des écrans suivants :
+### 4. Wireframes (2h)
 
-**Écran 1 : Page d'accueil / Recherche**
-- Barre de recherche principale
-- Filtres (par type : NAF ou ROME)
-- Accès rapide aux codes populaires
+Créez en Excalidraw les maquettes basse fidélité de :
 
-**Écran 2 : Résultats de recherche**
-- Liste des résultats avec score de pertinence
-- Preview du code et de la description
-- Possibilité de filtrer/trier
+**Interface Sophie (Service 1) — amélioration de l'existant :**
+- Page de recherche (barre + filtres)
+- Page de résultats (5-7 résultats max, badges couleur)
+- Détail d'une correspondance
 
-**Écran 3 : Détail d'une correspondance**
-- Code NAF avec description complète
-- Codes ROME associés (liste)
-- Score de similarité visualisé
+**Interface Karim (Service 2) — à concevoir :**
+- Zone de saisie de texte libre (grande, visible, accueillante)
+- Résultats avec scores de confiance (ex: `ROME M1805 — 90%`)
+- Justification en langage naturel
 
-**Écran 4 : Vue mobile** (bonus)
-- Version responsive de l'écran de recherche
+**Bonus — Mode vocal Whisper :**
+- Bouton microphone
+- Feedback visuel d'enregistrement
+- Transition vers les résultats
 
-### 4. Prototype interactif (2h)
-Dans Figma ou Penpot, rendez votre prototype navigable :
-- Cliquez sur la barre de recherche -> va vers les résultats
-- Cliquez sur un résultat -> va vers le détail
+### 5. Prototype interactif (2h)
+
+Dans Penpot ou Figma, rendez votre prototype navigable :
+- Barre de recherche → résultats
+- Résultat → détail
+- Zone texte Karim → résultats avec scores
 - Bouton retour fonctionnel
+- Couleurs et typographie définies (design system minimal)
 
 ---
 
-## Critères d'évaluation UX
+## Checklist RGAA — dès le prototypage
 
-### Utilisabilité
-- [ ] La recherche est visible et accessible immédiatement (principe de visibilité)
-- [ ] Les codes NAF et ROME sont expliqués pour les non-experts
-- [ ] Les erreurs sont présentées de façon compréhensible
-- [ ] La pagination est intuitive
+Ces critères doivent être pensés **dans la maquette**, pas ajoutés après le code.
 
-### Accessibilité (WCAG 2.1 niveau AA)
-- [ ] Contraste suffisant (ratio 4.5:1 minimum pour le texte)
-- [ ] Taille de police lisible (minimum 16px corps de texte)
-- [ ] Navigation clavier possible
-- [ ] Labels sur tous les champs de formulaire
-
-### Cohérence visuelle
-- [ ] Palette de couleurs définie et appliquée
-- [ ] Typographie cohérente (2 polices max)
-- [ ] Composants réutilisables (boutons, cartes, badges)
-- [ ] Espacement régulier (grille de 8px)
+| # | Critère | À vérifier dans Penpot |
+|---|---|---|
+| 1 | Contraste texte/fond ≥ 4.5:1 (niveau AA) | Utiliser le contrast checker de Penpot |
+| 2 | Labels visibles sur tous les champs de formulaire | Pas de placeholder seul comme label |
+| 3 | Navigation clavier logique (ordre Tab cohérent) | Annoter l'ordre de focus dans la maquette |
+| 4 | Messages d'erreur textuels (pas seulement couleur rouge) | Ajouter un texte d'erreur sous le champ |
+| 5 | Texte alternatif sur les icônes porteuses de sens | Annoter `aria-label` dans la maquette |
+| 6 | Taille des zones cliquables ≥ 44×44px | Vérifier les boutons et liens dans Penpot |
+| 7 | Hiérarchie de titres logique (h1 → h2 → h3) | Annoter la sémantique HTML dans la maquette |
+| 8 | Indicateur de focus visible | Prévoir un style `:focus` visible dans le design |
+| 9 | Pas d'information transmise par la couleur seule | Les badges NAF/ROME ont du texte ET une couleur |
+| 10 | Langue de la page déclarée (`lang="fr"`) | Note dans les specs techniques du prototype |
 
 ---
 
-## Ressources design
+## Ateliers pratiques
 
-### Systèmes de design open source
-- [Dsfr (Design Système de l'État)](https://www.systeme-de-design.gouv.fr/) - Recommandé pour une app gouvernementale
-- [Material Design 3](https://m3.material.io/) - Google
-- [Ant Design](https://ant.design/) - Enterprise
+Ces ateliers sont **chronométrés et obligatoires** — ils se font avant d'ouvrir Penpot.
+Le meilleur UX se conçoit d'abord sur papier.
 
-### Inspiration
-- [Dribbble - UI Design](https://dribbble.com/tags/search-ui)
-- [Mobbin - Patterns mobile/web](https://mobbin.com)
-- [UI Patterns](https://ui-patterns.com)
+### Atelier 0 — Crazy 8s (20 min · solo puis binôme)
 
-### Couleurs accessibles
-- [Coolors](https://coolors.co) - Générateur de palettes
-- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
-- [Paletton](https://paletton.com)
+> Objectif : générer rapidement des idées sans se censurer.
 
-### Icônes
-- [Heroicons](https://heroicons.com) (open source)
-- [Lucide](https://lucide.dev) (open source)
-- [Phosphor Icons](https://phosphoricons.com) (open source)
+1. Prenez une feuille A4, pliez-la en 8 cases
+2. Réglez un minuteur sur **8 minutes**
+3. Dessinez **8 esquisses différentes** de la page principale de l'interface Karim (Service 2)
+   — une idée par case, peu importe la qualité du dessin
+4. En binôme : présentez vos 8 idées en 2 minutes chacun
+5. Chacun place **2 gommettes** (ou croix) sur les idées de l'autre qu'il préfère
+6. Les idées avec le plus de votes deviennent la base de votre wireframe
+
+**Photographiez votre feuille Crazy 8s — c'est un livrable.**
+
+---
+
+### Atelier 1 — Think-Aloud avec un binôme (20 min)
+
+> Objectif : observer un vrai comportement utilisateur plutôt qu'imaginer.
+
+**Rôles :** A = facilitateur, B = utilisateur (joue le rôle de Sophie ou Karim)
+
+> *Suggestion :* Si vous avez accès à Claude ou ChatGPT, vous pouvez demander au LLM
+> de jouer le rôle de Karim pendant le test — décrivez-lui le persona et la tâche,
+> puis posez-lui des questions comme "qu'est-ce que tu ferais face à cet écran ?".
+> C'est une façon rapide de simuler un utilisateur quand on n'a pas de vrai testeur disponible.
+
+1. **A** donne la tâche à voix haute à **B** :
+   > *"Tu es Sophie, conseillère France Travail. Un candidat développeur est en face de toi.
+   > Son entreprise cible a le code NAF 62.01Z. Trouve les métiers ROME correspondants."*
+2. **B** verbalise TOUT ce qu'il pense en naviguant sur `localhost:5173` ("je cherche...", "je ne comprends pas...", "je m'attends à...")
+3. **A** ne répond PAS, note sur papier : les hésitations, les erreurs, les commentaires spontanés
+4. Après 10 minutes : échangez les rôles (B devient facilitateur, A joue Karim avec le Service 2)
+
+**Notez au moins 3 blocages observés — ils deviendront vos "How Might We".**
+
+---
+
+### Atelier 2 — Heuristiques de Nielsen (20 min · binôme)
+
+> Objectif : structurer la critique avec un framework professionnel.
+
+Les 10 heuristiques de Nielsen sont le standard mondial d'évaluation d'interface.
+Appliquez-les à `03frontend` en complétant ce tableau :
+
+| # | Heuristique | Conforme ? | Observation sur notre app |
+|---|---|---|---|
+| 1 | Visibilité du statut système | ✅ / ⚠️ / ❌ | |
+| 2 | Correspondance système/monde réel | ✅ / ⚠️ / ❌ | |
+| 3 | Contrôle et liberté | ✅ / ⚠️ / ❌ | |
+| 4 | Cohérence et standards | ✅ / ⚠️ / ❌ | |
+| 5 | Prévention des erreurs | ✅ / ⚠️ / ❌ | |
+| 6 | Reconnaissance plutôt que rappel | ✅ / ⚠️ / ❌ | |
+| 7 | Flexibilité et efficacité | ✅ / ⚠️ / ❌ | |
+| 8 | Esthétique et minimalisme | ✅ / ⚠️ / ❌ | |
+| 9 | Aide à la récupération d'erreur | ✅ / ⚠️ / ❌ | |
+| 10 | Aide et documentation | ✅ / ⚠️ / ❌ | |
+
+---
+
+### Atelier 3 — How Might We (15 min · solo → groupe)
+
+> Objectif : transformer les blocages du Think-Aloud en opportunités de design.
+
+À partir des 3+ blocages observés en Atelier 1, rédigez des questions "Comment pourrions-nous..." :
+
+Format : **"Comment pourrions-nous [verbe d'action] pour que [persona] puisse [objectif] ?"**
+
+Exemples à partir de blocages réels :
+- Blocage : *"Sophie ne trouve pas les correspondances NAF↔ROME"*
+  → HMW : *"Comment pourrions-nous rendre le concept de 'correspondance' immédiatement compréhensible sans formation ?"*
+- Blocage : *"Karim ne sait pas où coller son texte"*
+  → HMW : *"Comment pourrions-nous faire de la zone de saisie l'élément le plus visible de la page ?"*
+
+Chaque étudiant rédige **3 HMW solo**, puis le groupe vote les 2 meilleurs pour guider le wireframe.
+
+---
+
+### Atelier 4 — Design assisté par IA *(Optionnel — bonus)*
+
+> ⚠️ **Optionnel** : cet atelier utilise un LLM (Claude, ChatGPT). Il nécessite un accès
+> à un compte (gratuit sur claude.ai ou chatgpt.com). Environ 5-10 échanges par atelier.
+>
+> Si vous n'avez pas d'accès, lisez la narration ci-dessous pour comprendre l'approche.
+
+Le fichier [`METAPROMPT_design_naf_rome.md`](METAPROMPT_design_naf_rome.md) contient :
+- Un **contexte système** à coller dans Claude (décrit Sophie, Karim, les contraintes RGAA)
+- **8 commandes** prêtes à l'emploi : critique de maquette, spec de composant, audit RGAA, HMW...
+- Une **narration complète** d'une session type (comment Amina l'a utilisé)
+
+**En 20 minutes avec ce méta-prompt, vous pouvez :**
+1. Faire auditer votre wireframe Crazy 8s par Claude (Commande 1)
+2. Obtenir la spec HTML/aria complète d'un composant (Commande 3)
+3. Générer 8 HMW à partir de vos observations (Commande 5)
 
 ---
 
 ## Planning suggéré
 
-| Heure | Activité |
-|-------|----------|
-| 09h00 - 09h30 | Introduction UX/UI — ouverture du wireframe de référence (`wireframe_naf_rome.excalidraw`) |
-| 09h30 - 10h00 | Création des personas |
-| 10h00 - 10h30 | Rédaction des user stories |
-| 10h30 - 12h30 | Wireframes (4 écrans) — s'inspirer du wireframe fourni et itérer |
-| 12h30 - 13h30 | Pause déjeuner |
-| 13h30 - 15h30 | Prototype haute fidélité (couleurs, typo) |
-| 15h30 - 16h30 | Liens interactifs dans le prototype |
-| 16h30 - 17h00 | Présentation + feedback |
+Les durées sont indicatives — la journée est volontairement flexible.
+Certains ateliers peuvent déborder, c'est normal et pédagogique.
+
+### Bloc 1 — Cadrage et théorie (~1h30)
+
+| Durée | Activité | Format |
+|---|---|---|
+| ~30 min | Introduction : projet NAF/ROME, personas Sophie & Karim, 2 services | Collectif |
+| ~45 min | Théorie UX : Miller, Hick, Fitts, Gestalt, Nielsen — appliqués au projet | Collectif |
+| ~15 min | Prise en main de `03frontend` (lancer l'app, explorer librement) | Solo |
+
+### Bloc 2 — Ateliers pratiques (~1h30)
+
+| Durée | Activité | Format |
+|---|---|---|
+| ~20 min | **Atelier 1 — Think-Aloud** : tester `03frontend` en jouant Sophie/Karim | Binôme |
+| ~20 min | **Atelier 2 — Nielsen** : audit des 10 heuristiques sur `03frontend` | Binôme |
+| ~15 min | **Atelier 3 — How Might We** : transformer les blocages en opportunités | Solo → vote groupe |
+| ~20 min | **Atelier 0 — Crazy 8s** : 8 esquisses papier du Service 2 Karim | Solo → binôme |
+
+### Bloc 3 — Conception (~2h)
+
+| Durée | Activité | Format |
+|---|---|---|
+| ~30 min | Personas documentés + User Stories (6 minimum) | Solo ou binôme |
+| ~1h30 | Wireframes Excalidraw : Service 1 amélioré + Service 2 Karim | Solo ou binôme |
+
+### Bloc 4 — Prototypage (~1h30)
+
+| Durée | Activité | Format |
+|---|---|---|
+| ~1h15 | Prototype haute fidélité Penpot/Figma (couleurs, typo, composants, liens) | Solo ou binôme |
+| ~15 min | Checklist RGAA sur le prototype (10 critères) | Solo |
+
+### Bloc 5 — Clôture (~30 min)
+
+| Durée | Activité | Format |
+|---|---|---|
+| ~20 min | Présentation inter-groupes + feedback collectif | Collectif |
+| ~10 min | **Atelier 4 *(optionnel)*** — Design assisté par IA (méta-prompt Claude) | Solo |
 
 ---
 
-## Exercice bonus : Test utilisateur
-
-Si le temps le permet, échangez votre prototype avec un autre groupe et effectuez
-un test utilisateur rapide (5 minutes par personne) :
-
-1. Donnez la tâche : "Trouvez les métiers ROME correspondant au code NAF 62.01Z"
-2. Observez sans intervenir
-3. Notez les blocages et incompréhensions
-4. Utilisez le feedback pour itérer sur votre design
+> **RGAA — note pour le jour 4 (autonomie)**
+>
+> La checklist RGAA du Bloc 4 est une **introduction** — 10 critères fondamentaux.
+> Le RGAA 4.1 complet (106 critères, 13 thèmes) sera approfondi en journée d'autonomie :
+> audit WAVE sur 5 sites réels, heuristiques par thème, déclaration d'accessibilité.
+> Ce que vous faites aujourd'hui dans la maquette est le bon réflexe : intégrer
+> l'accessibilité **dès la conception**, pas en post-correction du code.
 
 ---
 
-## Lien avec les TPs suivants
+## Lien avec les jours suivants
 
-Le design que vous créez aujourd'hui servira de référence pour :
-- **TP 1.1 (jour02)** : l'API que vous allez construire doit exposer les données
-  nécessaires à votre interface — le prototype Vue.js est déjà disponible dans `frontend/`
-- **Jour 5 (autonomie)** : vous pourrez implémenter et améliorer le prototype fonctionnel
+| Ce que vous concevez aujourd'hui | Ce que ça implique pour le code |
+|---|---|
+| Barre de recherche Service 1 | `GET /api/v1/search?query=...` (jour 2) |
+| Filtres NAF / ROME / Matching | `GET /api/v1/naf`, `/rome`, `/matching` (jour 2) |
+| Zone texte Service 2 Karim | `POST /api/v1/classify {"text": "..."}` (jour 2+) |
+| Traitement en masse (collègue dev de Karim) | Même endpoint appelé 500× en boucle via API (jour 3) |
+| Score de confiance affiché | Champ `score` dans le JSON de réponse |
+| Bouton export CSV | Logique côté frontend (jour 2) |
+
+> **Le prototype Penpot que vous créez aujourd'hui est le cahier des charges visuel de l'API que vous allez construire demain.**
+
+---
+
+## Ressources
+
+| Ressource | URL |
+|---|---|
+| Excalidraw (wireframe) | https://excalidraw.com |
+| Penpot (prototype open source) | https://penpot.app |
+| Figma (alternative) | https://figma.com |
+| DSFR — Design Système de l'État | https://www.systeme-de-design.gouv.fr/ |
+| WebAIM Contrast Checker | https://webaim.org/resources/contrastchecker/ |
+| Heroicons (icônes open source) | https://heroicons.com |
+| Loi de Miller (Wikipedia) | https://fr.wikipedia.org/wiki/Nombre_magique_(psychologie) |
+| RGAA 4.1 officiel | https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/ |
+| Unsplash (photos libres) | https://unsplash.com |
+| **Méta-prompt Design IA** *(optionnel)* | `METAPROMPT_design_naf_rome.md` |
