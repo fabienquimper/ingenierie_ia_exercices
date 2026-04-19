@@ -40,15 +40,33 @@ class NafRomeMatcher:
     def record_count(self) -> int:
         return len(self.df) if self.df is not None else 0
 
-    def get_rome_entries(self, limit: int = 100, offset: int = 0) -> list[dict]:
-        """Retourne les entrées ROME."""
-        rome_df = self.df[self.df["type"] == "rome"].iloc[offset : offset + limit]
-        return rome_df.to_dict("records")
+    def get_naf_count(self) -> int:
+        return int((self.df["type"] == "naf").sum())
+
+    def get_rome_count(self) -> int:
+        return int((self.df["type"] == "rome").sum())
+
+    def get_matching_count(self) -> int:
+        return int((self.df["type"] == "matching").sum())
 
     def get_naf_entries(self, limit: int = 100, offset: int = 0) -> list[dict]:
-        """Retourne les entrées NAF."""
-        naf_df = self.df[self.df["type"] == "naf"].iloc[offset : offset + limit]
-        return naf_df.to_dict("records")
+        """Retourne les entrées NAF paginées."""
+        df = self.df[self.df["type"] == "naf"].iloc[offset : offset + limit]
+        return df.to_dict("records")
+
+    def get_rome_entries(self, limit: int = 100, offset: int = 0) -> list[dict]:
+        """Retourne les entrées ROME paginées."""
+        df = self.df[self.df["type"] == "rome"].iloc[offset : offset + limit]
+        return df.to_dict("records")
+
+    def get_matching_entries(self, limit: int = 100, offset: int = 0) -> list[dict]:
+        """Retourne les correspondances NAF↔ROME paginées."""
+        df = self.df[self.df["type"] == "matching"].iloc[offset : offset + limit]
+        return df.to_dict("records")
+
+    def get_all_entries(self) -> list[dict]:
+        """Retourne tous les enregistrements (usage frontend SPA)."""
+        return self.df.to_dict("records")
 
     def get_rome_by_code(self, code_rome: str) -> Optional[dict]:
         """Retourne une entrée ROME par son code."""

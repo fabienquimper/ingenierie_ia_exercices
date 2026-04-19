@@ -2,10 +2,42 @@
 
 ## Description
 
-Ce TP vous guide pour créer une API REST avec FastAPI permettant d'interroger
-les correspondances entre codes NAF (activités économiques) et codes ROME (métiers).
+Ce TP fait évoluer l'application du Jour 1 en introduisant une **API REST FastAPI**
+entre les données et le frontend. L'interface Vue.js est identique, mais elle ne lit
+plus les CSV directement — elle interroge le backend Python.
 
 **Durée estimée :** 1 journée (7h)
+
+---
+
+## Progression pédagogique : Jour 1 → Jour 2
+
+| | Jour 1 — Frontend seul | Jour 2 — Frontend + API |
+|---|---|---|
+| **Données** | CSV chargés directement dans le navigateur | CSV chargés par le backend Python |
+| **Architecture** | 1 couche (frontend) | 2 couches (frontend + API) |
+| **Backend** | Aucun | FastAPI sur `localhost:8000` |
+| **Recherche** | Filtrage JavaScript côté navigateur | Filtrage Python côté serveur |
+| **Démarrage** | `./run.sh` (frontend seul) | `./run.sh` API + `./run.sh` frontend |
+| **Scalabilité** | Limitée (tout en mémoire navigateur) | Meilleure (backend peut être optimisé) |
+
+### Ce qui change dans le code
+
+**Frontend (`src/services/`) :**
+```
+Jour 1 : csvService.ts  →  fetch('/naf_codes_001_desc.csv')
+Jour 2 : apiService.ts  →  fetch('http://localhost:8000/api/v1/all')
+```
+
+**Traitement des données :**
+```
+Jour 1 : JavaScript dans le navigateur assigne le type (naf / rome / matching)
+Jour 2 : Python dans le backend assigne le type au chargement des CSV
+```
+
+**Indicateur de connexion :**  
+Le badge "API connectée / hors ligne" dans le header du Jour 2 est absent du Jour 1 —
+c'est la conséquence directe d'avoir un service externe dont on dépend.
 
 ---
 
@@ -105,23 +137,44 @@ curl http://localhost:8000/api/v1/mapping/rome-to-naf/M1805
 ```
 jour02_fast_api/
 ├── app/
-│   ├── __init__.py
-│   ├── config.py          # Configuration (pydantic-settings)
+│   ├── config.py          # Configuration (pydantic-settings) — 3 chemins CSV
 │   ├── main.py            # Application FastAPI + lifespan
 │   ├── models.py          # Modèles Pydantic (request/response)
 │   ├── routers/
-│   │   ├── __init__.py
 │   │   ├── health.py      # GET /health, GET /metrics
 │   │   └── mapping.py     # Tous les endpoints /api/v1/...
 │   └── services/
-│       ├── __init__.py
-│       └── matcher.py     # Logique de recherche et correspondance
+│       └── matcher.py     # Chargement des 3 CSV + logique de recherche
 ├── data/
-│   └── sample_naf_rome.csv  # Données d'exemple
-├── pyproject.toml           # Dépendances et configuration
-├── run.sh                   # Script de démarrage
+│   ├── naf_codes_001_desc.csv         # Codes NAF (type: naf)
+│   ├── rome.csv                       # Codes ROME (type: rome)
+│   ├── rome_with_naf__thenlper_gte-large.csv  # Correspondances (type: matching)
+│   └── sample_naf_rome.csv            # Extrait minimal (tests)
+├── frontend/
+│   └── src/services/
+│       ├── apiService.ts  # Jour 2 : appels vers l'API FastAPI
+│       └── csvService.ts  # Jour 1 : chargement CSV direct (conservé pour référence)
+├── pyproject.toml
+├── run.sh
 └── README.md
 ```
+
+### Liste complète des endpoints
+
+| Méthode | Route | Description |
+|---|---|---|
+| GET | `/` | Message de bienvenue |
+| GET | `/health` | Santé + nombre d'enregistrements chargés |
+| GET | `/metrics` | Métriques de monitoring |
+| GET | `/api/v1/naf` | Liste paginée des codes NAF |
+| GET | `/api/v1/rome` | Liste paginée des codes ROME |
+| GET | `/api/v1/matching` | Liste paginée des correspondances NAF↔ROME |
+| GET | `/api/v1/all` | **Tous les enregistrements** (usage frontend SPA) |
+| GET | `/api/v1/naf/{code}` | Détail d'un code NAF + ROME associés |
+| GET | `/api/v1/rome/{code}` | Détail d'un code ROME + NAF associés |
+| GET | `/api/v1/mapping/naf-to-rome/{code}` | Correspondances NAF → ROME |
+| GET | `/api/v1/mapping/rome-to-naf/{code}` | Correspondances ROME → NAF |
+| POST | `/api/v1/search` | Recherche par mots-clés |
 
 ---
 
@@ -129,11 +182,10 @@ jour02_fast_api/
 
 ### 1. `app/config.py` — Configuration
 Utilise `pydantic-settings` pour lire la configuration depuis les variables d'environnement.
-Le préfixe `APP_` permet de distinguer les variables de l'application.
+Le préfixe `APP_` permet de surcharger les chemins CSV :
 
-```python
-# Exemple: surcharger le chemin des données
-APP_DATA_PATH=data/mon_fichier.csv uvicorn app.main:app --reload
+```bash
+APP_DATA_NAF_PATH=data/mon_naf.csv uvicorn app.main:app --reload
 ```
 
 ### 2. `app/models.py` — Schémas de données

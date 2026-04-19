@@ -72,7 +72,15 @@
           <tr
             v-for="(row, i) in rows"
             :key="i"
-            class="hover:bg-slate-50/80 transition-colors group"
+            tabindex="0"
+            role="button"
+            :aria-expanded="expandedRow === i"
+            :aria-label="`${row.name} — cliquer pour ${expandedRow === i ? 'réduire' : 'afficher'} la description complète`"
+            @click="toggleRow(i)"
+            @keydown.enter.prevent="toggleRow(i)"
+            @keydown.space.prevent="toggleRow(i)"
+            class="hover:bg-slate-50/80 transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500"
+            :class="expandedRow === i ? 'bg-slate-50' : ''"
           >
             <td class="px-4 py-3">
               <span :class="row.type === 'naf' ? 'badge-naf' : row.type === 'rome' ? 'badge-rome' : 'badge-matching'">
@@ -89,7 +97,16 @@
               <span v-html="highlight(row.name)" />
             </td>
             <td class="px-4 py-3 text-slate-500 max-w-sm">
-              <span class="line-clamp-2" v-html="highlight(row.desc)" />
+              <div class="flex items-start justify-between gap-2">
+                <span :class="expandedRow === i ? '' : 'line-clamp-2'" v-html="highlight(row.desc)" />
+                <svg
+                  class="flex-shrink-0 w-4 h-4 text-slate-400 mt-0.5 transition-transform duration-200"
+                  :class="expandedRow === i ? 'rotate-180' : ''"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -135,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { NafRomeRecord, SortField, SortDir } from '../types'
 
 const props = defineProps<{
@@ -165,6 +182,12 @@ const columns = [
   { field: 'name' as SortField,      label: 'Intitulé',  class: '' },
   { field: 'name' as SortField,      label: 'Description', class: '' },
 ]
+
+const expandedRow = ref<number | null>(null)
+
+function toggleRow(i: number) {
+  expandedRow.value = expandedRow.value === i ? null : i
+}
 
 function toggleSort(field: SortField) {
   if (props.sortField === field) {

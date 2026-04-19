@@ -14,7 +14,7 @@ async def list_rome(
     """Retourne la liste paginée des codes ROME."""
     matcher = get_matcher()
     entries = matcher.get_rome_entries(limit=limit, offset=offset)
-    return {"data": entries, "limit": limit, "offset": offset, "total": len(entries)}
+    return {"data": entries, "limit": limit, "offset": offset, "total": matcher.get_rome_count()}
 
 
 @router.get("/rome/{code_rome}", summary="Détail d'un code ROME")
@@ -36,7 +36,28 @@ async def list_naf(
     """Retourne la liste paginée des codes NAF."""
     matcher = get_matcher()
     entries = matcher.get_naf_entries(limit=limit, offset=offset)
-    return {"data": entries, "limit": limit, "offset": offset, "total": len(entries)}
+    return {"data": entries, "limit": limit, "offset": offset, "total": matcher.get_naf_count()}
+
+
+@router.get("/matching", summary="Lister les correspondances NAF↔ROME")
+async def list_matching(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> dict:
+    """Retourne la liste paginée des correspondances NAF↔ROME."""
+    matcher = get_matcher()
+    entries = matcher.get_matching_entries(limit=limit, offset=offset)
+    return {"data": entries, "limit": limit, "offset": offset, "total": matcher.get_matching_count()}
+
+
+@router.get("/all", summary="Charger toutes les données (usage frontend SPA)")
+async def get_all() -> dict:
+    """Retourne l'intégralité des enregistrements des 3 sources.
+    Utilisé par le frontend Vue.js pour charger toutes les données en une seule requête.
+    """
+    matcher = get_matcher()
+    data = matcher.get_all_entries()
+    return {"data": data, "total": len(data)}
 
 
 @router.get("/naf/{code_naf:path}", summary="Détail d'un code NAF")
